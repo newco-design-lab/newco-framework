@@ -1,0 +1,512 @@
+/* ============================================================
+   FRAMEWORK — Diagrama del Cerebro con scroll (2 estados)
+   ============================================================ */
+
+.framework-section {
+  position: relative;
+  background: var(--surface-page);
+  border-top: 1px solid var(--border-default);
+  padding: 0;
+}
+
+.framework-pin-wrapper {
+  position: relative;
+  height: 500vh;
+}
+
+.framework-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 80px 16px 16px;
+}
+
+@media (max-width: 768px) {
+  .framework-stage {
+    padding: 70px 8px 8px;
+  }
+}
+
+.framework-head {
+  position: absolute;
+  top: 56px;
+  left: 0; right: 0;
+  text-align: center;
+  z-index: 5;
+  transition: opacity 0.3s ease;
+}
+
+.framework-head h2 {
+  font-weight: 800;
+  font-size: clamp(28px, 4.5vw, 44px);
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  margin-top: 10px;
+}
+
+/* ---------- Blob (Estado 1) ---------- */
+.blob-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 15;
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.blob {
+  width: 220px;
+  height: 220px;
+  background-color: #001326;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  box-shadow: 0 20px 40px rgba(0, 19, 38, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: none;
+  transition: border-radius 1.6s cubic-bezier(0.25, 1, 0.5, 1), background-color 1.6s cubic-bezier(0.25, 1, 0.5, 1), border-color 1.6s ease, box-shadow 1.6s ease, transform 0.1s ease;
+}
+
+.blob.morphed {
+  border-radius: 40% 60% 50% 50% / 50% 50% 60% 40%;
+  background-color: rgba(0, 107, 214, 0.12);
+  border: 2px solid rgba(0, 107, 214, 0.45);
+  box-shadow: 0 0 50px rgba(0, 107, 214, 0.35), inset 0 0 25px rgba(0, 107, 214, 0.2);
+  animation: organic-breath 6s infinite ease-in-out alternate;
+}
+
+@media (min-width: 640px) {
+  .blob { width: 300px; height: 300px; }
+  .blob svg { width: 120px; height: 133px; }
+}
+
+@media (max-width: 480px) {
+  .blob { width: 180px; height: 180px; }
+  .blob svg { width: 70px; height: 78px; }
+}
+
+@keyframes organic-breath {
+  0%   { border-radius: 38% 62% 55% 45% / 45% 38% 62% 55%; transform: rotate(0deg) scale(1); }
+  50%  { border-radius: 55% 45% 40% 60% / 60% 50% 50% 40%; transform: rotate(4deg) scale(1.04); }
+  100% { border-radius: 42% 58% 60% 40% / 40% 60% 40% 60%; transform: rotate(-3deg) scale(0.97); }
+}
+
+.blob svg {
+  width: 90px;
+  height: 100px;
+  color: #FFFFFF;
+  filter: drop-shadow(0 0 14px rgba(0, 107, 214, 0.85));
+  transition: opacity 1.2s cubic-bezier(0.25, 1, 0.5, 1), transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1), filter 1.2s ease;
+  opacity: 1;
+  transform: scale(1);
+}
+
+.blob.is-morphing svg {
+  opacity: 0;
+  transform: scale(0.2);
+  filter: drop-shadow(0 0 0px transparent);
+}
+
+@media (min-width: 640px) {
+  .blob svg { width: 120px; height: 120px; }
+}
+
+.blob-label {
+  margin-top: 20px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-brand);
+  transition: opacity 0.3s ease;
+}
+
+.scroll-hint {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  animation: bounce 1.6s infinite;
+  transition: opacity 0.25s ease;
+  z-index: 5;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translate(-50%, 0); }
+  50% { transform: translate(-50%, 8px); }
+}
+
+/* ---------- Diagram stage (Estado 2) ---------- */
+.diagram-stage {
+  position: absolute;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 1020px;
+  height: calc(100% - 220px);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+@media (max-width: 768px) {
+  .diagram-stage {
+    top: 80px;
+    height: calc(100% - 180px);
+    width: calc(100% - 16px);
+  }
+}
+
+.diagram-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.diagram-svg path {
+  stroke: var(--text-brand);
+  stroke-width: 1.4;
+  fill: none;
+  opacity: 0.55;
+  stroke-dasharray: 5 5;
+  animation: flow-dash 1.4s linear infinite;
+}
+
+@keyframes flow-dash { to { stroke-dashoffset: -20; } }
+
+.brain-node {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  border: 2px solid rgba(255,255,255,0.18);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 3;
+  transition: transform 0.15s linear, background 0.3s ease, border-color 0.3s ease;
+}
+
+.brain-node svg {
+  width: 30px; height: 30px;
+  color: #FFFFFF;
+}
+
+.node {
+  position: absolute;
+  z-index: 2;
+  background: #FFFFFF;
+  border: 1px solid var(--border-default);
+  padding: 9px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  transition: opacity 0.4s ease, transform 0.3s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  opacity: 0;
+}
+
+.node.is-visible { opacity: 1; }
+
+.node.node-main {
+  font-weight: 800;
+  border-width: 1.5px;
+}
+
+.node.node-sub {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: rgba(244,246,249,0.95);
+}
+
+.node:hover,
+.node.node-active {
+  border-color: var(--text-brand);
+  box-shadow: 0 8px 20px rgba(0,107,214,0.18);
+  transform: translate(-50%, -50%) translateY(-2px);
+  z-index: 6;
+}
+
+.node-security {
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 10px;
+  border-color: rgba(210, 0, 0, 0.3);
+  background: rgba(210,0,0,0.04);
+  color: #9E3E47;
+}
+
+/* Color accents per group (border-left tick) */
+.node-entidad { border-left: 3px solid var(--text-primary); }
+.node-capacidad { border-left: 3px solid #6CA46C; }
+.node-core { border-left: 3px solid #78909C; }
+.node-orquestador { border-left: 3px solid #9C82C1; }
+.node-datos { border-left: 3px solid var(--text-brand); }
+
+/* ---------- Specs card ---------- */
+.specs-card {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  width: calc(100% - 32px);
+  max-width: 720px;
+  background: #FFFFFF;
+  border: 1px solid var(--border-default);
+  border-left: 4px solid var(--text-brand);
+  padding: 20px 24px;
+  opacity: 0;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  z-index: 20;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+@media (max-width: 768px) {
+  .specs-card {
+    bottom: 12px;
+    padding: 16px 18px;
+    width: calc(100% - 24px);
+  }
+  .specs-title {
+    font-size: 14px;
+  }
+  .specs-desc {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+}
+
+.specs-card.is-visible { 
+  opacity: 1; 
+  transform: translateX(-50%) translateY(0); 
+}
+
+.specs-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-brand);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.specs-title {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  color: var(--text-primary);
+}
+
+.specs-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 100%;
+  margin-bottom: 12px;
+}
+
+.specs-tech {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-tertiary);
+  padding-top: 12px;
+  border-top: 1px solid var(--border-default);
+}
+
+/* ============================================================
+   NODOS ORBITALES — Scroll-driven animation
+   ============================================================ */
+
+.diagram-stage.visible {
+  pointer-events: auto;
+}
+
+.diagram-svg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.brain-node {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(0.5);
+  z-index: 15;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #001326;
+  border-radius: 50%;
+  border: 3px solid rgba(0, 107, 214, 0.4);
+  box-shadow: 0 0 40px rgba(0, 107, 214, 0.3), 0 8px 32px rgba(0, 19, 38, 0.2);
+  opacity: 0;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.brain-node svg {
+  width: 50px;
+  height: 50px;
+  color: white;
+  filter: drop-shadow(0 0 8px rgba(0, 107, 214, 0.5));
+}
+
+@media (min-width: 640px) {
+  .brain-node { width: 130px; height: 130px; }
+  .brain-node svg { width: 65px; height: 65px; }
+}
+
+.node {
+  position: absolute;
+  background: white;
+  border: 1.5px solid #001326;
+  padding: 10px 16px;
+  border-radius: 2px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  color: #001326;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.4);
+  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  z-index: 8;
+  cursor: default;
+}
+
+.node:hover {
+  box-shadow: 0 4px 16px rgba(0, 107, 214, 0.15);
+  border-color: #006BD6;
+}
+
+.node.node-main {
+  font-weight: 800;
+  font-size: 13px;
+  padding: 12px 18px;
+  border-width: 2px;
+}
+
+.node.node-sub {
+  background: #FFFFFF;
+  border-color: #DDE0E5;
+  color: #465462;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 8px 12px;
+}
+
+.node.node-sub:hover {
+  border-color: #006BD6;
+  color: #001326;
+}
+
+.node.node-capacidad {
+  border-color: #4CAF50;
+  background: #E8F5E9;
+  color: #1B5E20;
+}
+
+.node.node-core {
+  border-color: #607D8B;
+  background: #ECEFF1;
+  color: #263238;
+}
+
+.node.node-orquestador {
+  border-color: #006BD6;
+  background: #E3F2FD;
+  color: #0D47A1;
+}
+
+.node.node-datos {
+  border-color: #006BD6;
+  background: #E3F2FD;
+  color: #0D47A1;
+}
+
+.node.visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.node.node-security {
+  background: #FFF3E0;
+  border-color: #E65100;
+  color: #BF360C;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 12px 24px;
+}
+
+@media (min-width: 640px) {
+  .blob svg { width: 120px; height: 120px; }
+}
+
+.specs-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  max-width: 720px;
+}
+
+.specs-tech {
+  margin-top: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+@media (max-width: 880px) {
+  .node { 
+    font-size: 9px; 
+    padding: 6px 8px;
+    max-width: 120px;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.3;
+  }
+}
+
+@media (max-width: 480px) {
+  .node { 
+    font-size: 8px; 
+    padding: 5px 6px;
+    max-width: 90px;
+  }
+  .node.node-main {
+    max-width: 110px;
+  }
+}
